@@ -1,0 +1,557 @@
+<html><style>
+table {
+    width: 100%;
+    border: 1px solid #000;
+  }
+  td {
+    border: 1px solid #000;
+}
+  th.left {
+    width: 15%
+  }
+  th.middle {
+    width: 85%; 
+  }
+  h1 {
+    background-color:lightblue;
+  }
+  </style>
+  <body>
+    <table>
+        <thead>
+            <tr>
+                <th class='left'></th>
+                <th class='middle'></th>
+            </tr>
+    </thead>
+    <tr><td colspan=2><h1>Node response time dropped</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Node (.+) has dropped its average response time from above (.+)ms to (.+) which falls below the (.+)ms threshold\.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Node (.+) has dropped its average response time from above (.+)ms to (.+) which falls below the (.+)ms threshold\.</td></tr><tr><td><B>Mapped fields: </B></td><td>hostNameFromEvent</BR>avgResponseTime</BR>newAvgresponseTime</BR>responseTimeThreshdold</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_response_time</td></tr><tr><td colspan=2><h1>Nagios - IIS Short Name</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((type = IIS Web Server AND</BR>node NOT LIKE .))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>name</B> : </td><td>Microsoft IIS Server@${node}</td></tr><tr><td colspan=2><h1>AWS LB binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = AWS CloudWatch AND</BR>((LoadBalancerName ISNOTEMPTY ))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>event_class</B></td></tr><tr><td><B>Regex: </B></td><td>(.*):sns:(.*):(.*):(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>prefix</BR>region_id</BR>punctuation1</BR>punctuation2</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>object_id</B> : </td><td>${LoadBalancerName}</td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>SCOM Logical Disk Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.(.*)\.LogicalDisk:(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.(.*)\.LogicalDisk:([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>os_type</BR>disk_node</BR>disk_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>Disk ${disk_name} ${metric_name}</td></tr><tr><td colspan=2><h1>SCOM IIS Fallback</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.Windows\.InternetInformationServices\.(.*)\.(.*):([^;]*);(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.Windows\.InternetInformationServices\.(.*)\.(.*):([^\.]*)([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>scom_version</BR>scom_type</BR>iis_web_server_name</BR>fqdn_remainder</BR>scom_resource</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${scom_type} ${scom_resource} ${metric_name}</td></tr><tr><td colspan=2><h1>SCOM - Fallback rule - Metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX (.*):([^;]*);(.*) AND</BR>classification = 2))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>(.*):([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>scom_type</BR>scom_node</BR>scom_resource</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${scom_resource}${InstanceName}:${metric_name} ${ObjectName}</td></tr><tr><td colspan=2><h1>SCOM - Fallback rule</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX (.*):([^;]*);(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>(.*):([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>scom_type</BR>scom_node</BR>scom_resource</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${scom_resource}:${metric_name}</td></tr><tr><td colspan=2><h1>Azure WS binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Microsoft Azure AND</BR>((type = microsoft.web/sites AND</BR>object_id ISNOTEMPTY ))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>New Relic Azure Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = New Relic AND</BR>((event_class = New Relic AND</BR>provider = Azure AND</BR>targetType = Host))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>labels</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)azure\.name\=(.*?)\,(.*)azure\.vmId\=(.*?)\,(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>LabelsPart1</BR>name</BR>LabelsPart2</BR>vm_inst_id</BR>LabelsPart3</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Nagios Oracle Instance</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((command_name LIKE oracle))</code></td></tr><tr><td colspan=2><h1>Operational Intelligence Health Metrics Rule</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = ITOA_Metrics</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>_lost connectivity</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = vmwVC AND</BR>((vmwVpxdObjValue MATCH_RGX alarm\.NetworkConnectivityLostAlarm\s+\-(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdTargetObjType</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>obj_type</BR></td></tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdTargetObj</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdObjValue</B></td></tr><tr><td><B>Regex: </B></td><td>alarm\.NetworkConnectivityLostAlarm\s+\-(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>summary</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>description</B> : </td><td>Lost connectivity to ${vmwVpxdTargetObj}  (Status:${vmwVpxdNewStatus} )</td></tr><tr><td><B>message_key</B> : </td><td>NetworkConnectivityLostAlarm_${vmwVpxdTargetObj}</td></tr><tr><td colspan=2><h1>Component_Status</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX NetPerMon Event Log:  Component  (.+) on Application (.+) on Node (.+) is (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>NetPerMon Event Log:  Component  (.+) on Application (.+) on Node (.+) is (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>component</BR>app</BR>hhostNameInEvent</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNode}_${netObjectId}_${component}_${app}_component_status</td></tr><tr><td colspan=2><h1>Node response time above</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Node (.+) has an average response time of (.+) ms which falls above the (.+)ms threshold\.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Node (.+) has an average response time of (.+) ms which falls above the (.+)ms threshold\.</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR>averageResponseTime</BR>tthreshold</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_response_time</td></tr><tr><td colspan=2><h1>snmpV3.coldStart</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv3 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)coldStart))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>type</B> : </td><td>coldStart</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>message_key</B> : </td><td>coldStart: ${node}</td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>description</B> : </td><td>${node}: is reinitializing itself and its configuration may be altered.</td></tr><tr><td colspan=2><h1>SCOM Physical Disk Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.(.*)\.PhysicalDisk:(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.(.*)\.PhysicalDisk:([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>os_type</BR>disk_node</BR>disk_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>Physical Disk ${disk_name}: ${metric_name}</td></tr><tr><td colspan=2><h1>Azure Monitor WS Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Azure Monitor AND</BR>((schemaId = azureMonitorCommonAlertSchema AND</BR>object_id ISNOTEMPTY  AND</BR>resourceType = microsoft.web/sites))</code></td></tr><tr><td colspan=2><h1>Google Monitor VM Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Google Monitor AND</BR>((impactedResourceType = VM Instance))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>node</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>object_id</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Dynatrace general event rule</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = DYNATRACE</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>event_class</B> : </td><td>${environmentName}</td></tr><tr><td colspan=2><h1>Zabbix net.tcp.port</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH net.tcp.port))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[.*?,(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_port</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>TCP:${r_port}</td></tr><tr><td colspan=2><h1>OMi Sitescope - Ignore Info</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = OMi AND</BR>((severity = 5 AND</BR>u_application = SiteScope))</code></td></tr><tr><td colspan=2><h1>OracleGrid Database Traps</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = oraEM4Traps AND</BR>((oraEM4AlertTargetType MATCH_RGX Database))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>oraEM4AlertHostName</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td><B>Parsed field: </B></td><td>oraEM4AlertTargetName</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>instance</BR></td></tr><tr><td><B>Parsed field: </B></td><td>oraEM4AlertMessage</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>description</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${node}${oraEM4AlertKeyName}${oraEM4AlertMetricName}${oraEM4AlertRuleName}${oraEM4AlertTargetName}${oraEM4AlertTargetType}</td></tr><tr><td colspan=2><h1>cisco.reload</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Trap From Enterprise 9 AND</BR>((snmpTrapOID MATCH_RGX iso.org.dod.internet.private.enterprises.cisco.0.0))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>reload: ${node}</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td><B>type</B> : </td><td>reload</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>description</B> : </td><td>${node} is reinitializing itself such that the agents configuration or the protocol entity implementation may be altered.</td></tr><tr><td colspan=2><h1>Solarwinds Generic App events</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((eventType MATCH_RGX 30|31))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${netObjectId}_${networkNodeId}_appUpDownEvent</td></tr><tr><td colspan=2><h1>Op5 CPU</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Op5 AND</BR>((metric_name STARTSWITH CPU OR</BR>metric_name LIKE CPU))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>CPU</td></tr><tr><td colspan=2><h1>snmpV2.warmStart</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv2 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)warmStart))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td><B>type</B> : </td><td>warmStart</td></tr><tr><td><B>description</B> : </td><td>${node}: is reinitializing itself such that its configuration is unaltered.</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>message_key</B> : </td><td>warmStart: ${node}</td></tr><tr><td colspan=2><h1>Datadog Host Event Rule [Azure]</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Datadog AND</BR>((provider = azure))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>vmObjectIDField</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Host not responding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX (.+) has stopped responding (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>(.+) has stopped responding (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>hostNameInEvent</BR>reason</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_response_time</td></tr><tr><td colspan=2><h1>Zabbix hostResource</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_type LIKE SNMPv1 agent OR</BR>u_item_type LIKE SNMPv2 agent OR</BR>u_item_type LIKE SNMPv3 agent OR</BR>u_item_type LIKE Zabbix internal OR</BR>u_item_type LIKE external check OR</BR>u_item_type LIKE SNMP trap OR</BR>u_item_type LIKE calculated))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td colspan=2><h1>Zabbix net.(tcp|udp).listen</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ MATCH_RGX net\.(.*)\.listen\[(.*)\]))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>net\.(.*)\.listen\[(.*?)\].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_protocol</BR>r_port</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_protocol}${r_port}</td></tr><tr><td colspan=2><h1>Interface Utilization Triggered</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Interface (.*) on (.*) received at (.*) of its utilization, which triggered this alert.*))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Interface (.*) on (.*) received at (.*) of its utilization, which triggered this alert.*</td></tr><tr><td><B>Mapped fields: </B></td><td>InterfaceNameInEvent</BR>HostNameInEvent</BR>Utilization</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_interface_utilization</td></tr><tr><td><B>severity</B> : </td><td>3</td></tr><tr><td colspan=2><h1>Zabbix vfs.dev</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH vfs.dev))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_device</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>File System:${r_device}</td></tr><tr><td colspan=2><h1>Interface status</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Interface (.+) for node (.+) is (.+)\.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Interface (.+) for node (.+) is (.+)\.</td></tr><tr><td><B>Mapped fields: </B></td><td>interfaceName</BR>nodeName</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${netObjectId}_${networkNodeId}_interfaceEvent</td></tr><tr><td colspan=2><h1>ciscoV1.reload</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Trap From Enterprise 9 AND</BR>((specific_trap MATCH_RGX 0 AND</BR>enterprise MATCH_RGX cisco))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>agent_address</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>type</B> : </td><td>reload</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>message_key</B> : </td><td>reload: ${node}</td></tr><tr><td><B>description</B> : </td><td>${node} is reinitializing itself such that the agents configuration or the protocol entity implementation may be altered.</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td colspan=2><h1>esx_lost connectivity</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = vmwVC AND</BR>((vmwVpxdObjValue MATCH_RGX alarm\.HostConnectivityAlarm\s+\-(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdTargetObjType</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>obj_type</BR></td></tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdTargetObj</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdObjValue</B></td></tr><tr><td><B>Regex: </B></td><td>alarm\.HostConnectivityAlarm\s+\-(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>summary</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>description</B> : </td><td>Lost connectivity to ${vmwVpxdTargetObj}  (Status:${vmwVpxdNewStatus} )</td></tr><tr><td><B>message_key</B> : </td><td>HostConnectivityAlarm{vmwVpxdTargetObj}</td></tr><tr><td colspan=2><h1>k8s node metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = sn_itmon AND</BR>((metric_name LIKE .k8s.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)\.k8s\.(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR>metric_name_short</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>k8s.${metric_name_short}</td></tr><tr><td colspan=2><h1>SCOM IIS Web Server</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.Windows\.InternetInformationServices\.(.*)\.WebServer:(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.Windows\.InternetInformationServices\.(.*)\.WebServer:([^\.]*)\.(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>scom_version</BR>iis_webserver_name</BR>the_rest</BR></td></tr><tr><td colspan=2><h1>Zabbix IPMI</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_type LIKE IPMI agent))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${u_item_interface_ip}:${u_item_interface_port}:${u_ipmi_sensor}</td></tr><tr><td colspan=2><h1>SCOM Operating Systems all</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.(.*)OperatingSystem:(.*)))</code></td></tr><tr><td colspan=2><h1>Nagios MongoDB</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((command_name LIKE mongodb))</code></td></tr><tr><td colspan=2><h1>cisco.tcpConnectionClose</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Trap From Enterprise 9 AND</BR>((snmpTrapOID MATCH_RGX iso.org.dod.internet.private.enterprises.cisco.0.1))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>tcpConnectionClose: ${node}</td></tr><tr><td><B>type</B> : </td><td>tcpConnectionClose</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>description</B> : </td><td>${node}: TCP connection is closed.</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td colspan=2><h1>snmpV1.coldStart</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv1 Generic Trap AND</BR>((generic_trap MATCH_RGX 0))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>agent_address</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>type</B> : </td><td>coldStart</td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>message_key</B> : </td><td>coldStart: ${node}</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>description</B> : </td><td>${node}: is reinitializing itself and its configuration may be altered.</td></tr><tr><td colspan=2><h1>Zabbix vmware.hv.datastore</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH vmware.hv.datastore))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[.*?[,\]](.*?)[,\]](.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_uuid</BR>r_datastore</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>HV:${r_uuid}:${r_datastore}</td></tr><tr><td colspan=2><h1>Azure Monitor database binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Azure Monitor AND</BR>((schemaId = azureMonitorCommonAlertSchema AND</BR>object_id ISNOTEMPTY ) AND</BR>(resourceType LIKE microsoft.documentdb OR</BR>resourceType LIKE microsoft.cache OR</BR>resourceType LIKE successbricks.cleardb))</code></td></tr><tr><td colspan=2><h1>Nagios MSFT SQL Instance</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((command_name LIKE mssql_server))</code></td></tr><tr><td colspan=2><h1>Nagios MS SQL Database</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((command_name LIKE mssql_database OR</BR>command_name LIKE mssql_query))</code></td></tr><tr><td colspan=2><h1>cisco.ciscoFlashCopyCompletionTrap</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Trap From Enterprise 9 AND</BR>((snmpTrapOID MATCH_RGX ciscoFlashCopyCompletionTrap))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td><B>message_key</B> : </td><td>ciscoFlashCopyCompletionTrap: ${node}</td></tr><tr><td><B>type</B> : </td><td>ciscoFlashCopyCompletionTrap</td></tr><tr><td><B>description</B> : </td><td>${node}: a flash copy operation is completed.</td></tr><tr><td colspan=2><h1>Solarwinds Node Status</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Node ([^^']+) is (.+)\.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Node ([^']+) is (.+)\.</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${netObjectId}_${networkNodeId}_nodeStatus</td></tr><tr><td colspan=2><h1>k8s pod network</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = sn_itmon AND</BR>((metric_name LIKE .network. AND</BR>metric_name LIKE .pods.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)\.k8s\.pods\.(.*)\.network\.(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>ignore</BR>name</BR>short_metric_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td><B>metric_name</B> : </td><td>k8s.${short_metric_name}</td></tr><tr><td colspan=2><h1>SCOM - MSSQL Instance</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName STARTSWITH Microsoft.SQLServer.DBEngine:))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.SQLServer.(.*):([^;]*);([^;]*)</td></tr><tr><td><B>Mapped fields: </B></td><td>real_type</BR>scom_node</BR>instance_name</BR></td></tr><tr><td colspan=2><h1>Packet loss dropped</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Node (.+)'s packet loss has dropped from above (.+)% to below (.+)% and is currently (.+) %\.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Node (.+)'s packet loss has dropped from above (.+)% to below (.+)% and is currently (.+) %\.</td></tr><tr><td><B>Mapped fields: </B></td><td>nodeName</BR>from</BR>toBelow</BR>current</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_packet_loss</td></tr><tr><td colspan=2><h1>vCenter ESX Servers</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = vCenter AND</BR>((type = AlarmStatusChangedEvent OR</BR>type = AlarmClearedEvent) AND</BR>(resource STARTSWITH HostSystem))</code></td></tr><tr><td colspan=2><h1>snmpV3.warmStart</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv3 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)warmStart))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>type</B> : </td><td>warmStart</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>message_key</B> : </td><td>warmStart: ${node}</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td><B>description</B> : </td><td>${node}: is reinitializing itself such that its configuration is unaltered.</td></tr><tr><td colspan=2><h1>OMi Sitescope Metric</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = OMi AND</BR>((metric_name ISEMPTY  AND</BR>description STARTSWITH Metric AND</BR>u_application = SiteScope))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>^Metric '(.*?)'.*</td></tr><tr><td><B>Mapped fields: </B></td><td>metric_name</BR></td></tr><tr><td colspan=2><h1>All Splunk</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Splunk</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>unMapped</BR></td></tr><tr><td colspan=2><h1>Application Status</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX NetPerMon Event Log:  Application +(.+) on Node (.+) is (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>NetPerMon Event Log:  Application +(.+) on Node (.+) is (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>app</BR>nodeName</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_${app}_app_status</td></tr><tr><td colspan=2><h1>Nagios Fallback for metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((classification = 2))</code></td></tr><tr><td colspan=2><h1>SCOM IIS Fallback - Metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.Windows\.InternetInformationServices\.(.*)\.(.*):([^;]*);(.*) AND</BR>classification = 2))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.Windows\.InternetInformationServices\.(.*)\.(.*):([^\.]*)([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>scom_version</BR>scom_type</BR>iis_web_server_name</BR>fqdn_remainder</BR>scom_resource</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${scom_type} ${scom_resource} ${InstanceName}:${metric_name} ${ObjectName}</td></tr><tr><td colspan=2><h1>AWS Metrics Virtual Machine</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = AWS CloudWatch Metrics AND</BR>((metric_identifier ISNOTEMPTY  AND</BR>namespace STARTSWITH AWS/EC2))</code></td></tr><tr><td colspan=2><h1>Dynatrace VM Event Rule [AWS and Google]</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Dynatrace AND</BR>((impactedEntityType = HOST) AND</BR>(provider = AWS OR</BR>provider = Google))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>node</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>object_id</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Ignore Recovery</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Hyperic AND</BR>((type LIKE Recovery))</code></td></tr><tr><td colspan=2><h1>Zabbix All</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((classification != 2))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td colspan=2><h1>Zabbix Metrics Memory</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((classification = 2 AND</BR>applications_name = Memory))</code></td></tr><tr><td colspan=2><h1>Group status down</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX (.+) on (.+) is in an? (.+) state))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>(.+) on (.+) is in an? (.+) state</td></tr><tr><td><B>Mapped fields: </B></td><td>groupName</BR>nodeName</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_${groupName}_group_status</td></tr><tr><td colspan=2><h1>Zabbix system.cpu</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH system.cpu))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_cpu</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>CPU:${r_cpu}</td></tr><tr><td colspan=2><h1>SolarWinds Volume Caption Metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((monitored_object_type = FixedDisk OR</BR>InstanceType STARTSWITH Orion.VolumeUsageHistory OR</BR>InstanceType STARTSWITH Orion.VolumePerformanceHistory) AND</BR>(classification = 2 AND</BR>metric_identifier LIKE Volume_Caption))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>name</B> : </td><td>${Volume_Caption}</td></tr><tr><td colspan=2><h1>snmpV1.warmStart</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv1 Generic Trap AND</BR>((generic_trap MATCH_RGX 1))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>agent_address</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>type</B> : </td><td>warmStart</td></tr><tr><td><B>description</B> : </td><td>${node}: is reinitializing itself such that its configuration is unaltered.</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td><B>message_key</B> : </td><td>warmStart: ${node}</td></tr><tr><td colspan=2><h1>snmpV2.linkUp</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv2 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)linkUp))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>description</B> : </td><td>${node}: interface(${ifIndex}) is no longer in down state.</td></tr><tr><td><B>severity</B> : </td><td>0</td></tr><tr><td><B>resource</B> : </td><td>interface ${ifIndex}</td></tr><tr><td><B>resolution_state</B> : </td><td>Closing</td></tr><tr><td><B>message_key</B> : </td><td>linkUpDown: ${node}, interface ${ifIndex}</td></tr><tr><td><B>type</B> : </td><td>interface linkUpDown</td></tr><tr><td colspan=2><h1>Nagios MySQL</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((command_name LIKE mysql))</code></td></tr><tr><td colspan=2><h1>SCOM - Fallback Non OS</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX (.*):([^;]*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>(.*):([^;]*)</td></tr><tr><td><B>Mapped fields: </B></td><td>scom_res_type</BR>scom_resource</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${scom_res_type} : ${metric_name}</td></tr><tr><td colspan=2><h1>New Relic GCP Host Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = New Relic AND</BR>((event_class = New Relic AND</BR>provider = GCP AND</BR>targetType = Host))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>labels</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)\, hostname\=(.*?)\, (.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>LabelsPart1</BR>name</BR>LabelsPart2</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>SCOM - Fallback Non OS - Metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX (.*):([^;]*) AND</BR>classification = 2))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>(.*):([^;]*)</td></tr><tr><td><B>Mapped fields: </B></td><td>scom_res_type</BR>scom_resource</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${scom_res_type} ${InstanceName}: ${metric_name}</td></tr><tr><td colspan=2><h1>Azure Monitor MSSQL binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Azure Monitor AND</BR>((schemaId = azureMonitorCommonAlertSchema AND</BR>object_id ISNOTEMPTY  AND</BR>resourceType STARTSWITH microsoft.sql/servers))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>object_id</B></td></tr><tr><td><B>Regex: </B></td><td>(.*\/microsoft\.sql\/servers\/.*)\/databases\/.*</td></tr><tr><td><B>Mapped fields: </B></td><td>object_id</BR></td></tr><tr><td colspan=2><h1>Group Status</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX NetPerMon Event Log: Group (.+) is (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>NetPerMon Event Log: Group (.+) is (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>groupName</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_${groupName}_group_status</td></tr><tr><td colspan=2><h1>Counter  is up</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX (.+) for (.+) on (.+) is (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>(.+) for (.+) on (.+) is (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>counter</BR>app</BR>nnodeName</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_${counter}_${app}_counter_status</td></tr><tr><td colspan=2><h1>Azure Monitor</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Azure Monitor AND</BR>((schemaId = azureMonitorCommonAlertSchema))</code></td></tr><tr><td colspan=2><h1>Zabbix perf_counter</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH perf_counter))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_counter</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_counter}</td></tr><tr><td colspan=2><h1>snmpV2.authenticationFailure</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv2 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)authenticationFailure))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>type</B> : </td><td>authenticationFailure</td></tr><tr><td><B>description</B> : </td><td>${node}: has received a protocol message that has not been properly authenticated.</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>message_key</B> : </td><td>authenticationFailure: ${node}</td></tr><tr><td colspan=2><h1>Zabbix database monitor</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH db.odbc.select))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[.*?[,\]](.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_dataSourceName</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_dataSourceName}</td></tr><tr><td colspan=2><h1>snmpV1.authenticationFailure</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv1 Generic Trap AND</BR>((generic_trap MATCH_RGX 4))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>agent_address</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>type</B> : </td><td>authenticationFailure</td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>message_key</B> : </td><td>authenticationFailure: ${node}</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>description</B> : </td><td>${node}: has received a protocol message that has not been properly authenticated.</td></tr><tr><td colspan=2><h1>Interface High Transmit</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Interface (.+) for node (.+) has a transmitted utilization of (.+) which is greater than the threshold of (.+)\.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Interface (.+) for node (.+) has a transmitted utilization of (.+) which is greater than the threshold of (.+)\.</td></tr><tr><td><B>Mapped fields: </B></td><td>interfaceName</BR>nodeName</BR>transmitUtilization</BR>threshold</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_${interfaceName}_high_transmit</td></tr><tr><td colspan=2><h1>Zabbix Metrics Interfaces</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((classification = 2 AND</BR>applications_name = Interfaces AND</BR>metric_name != Number of network interfaces))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>key</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)\[(.*)\]</td></tr><tr><td><B>Mapped fields: </B></td><td>firstPart</BR>ciName</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>name</B> : </td><td>${ciName}</td></tr><tr><td colspan=2><h1>SolarWinds Interface Metrics (At Router Interface)</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((InstanceType = Orion.NPM.InterfaceTraffic OR</BR>monitored_object_type = Ethernet OR</BR>InstanceType = Orion.NPM.InterfaceErrors) AND</BR>(classification = 2))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>Interface_Name</B></td></tr><tr><td><B>Regex: </B></td><td>Intel(R) 82574L Gigabit Network Connection</td></tr><tr><td><B>Mapped fields: </B></td><td></td></tr><tr><td><B>Parsed field: </B></td><td>name</B></td></tr><tr><td><B>Regex: </B></td><td>${interface_Name}</td></tr><tr><td><B>Mapped fields: </B></td><td></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>name</B> : </td><td>${Interface_Name}</td></tr><tr><td colspan=2><h1>SolarWinds Volume Mount Point Metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((monitored_object_type = FixedDisk OR</BR>InstanceType STARTSWITH Orion.VolumeUsageHistory OR</BR>InstanceType STARTSWITH Orion.VolumePerformanceHistory) AND</BR>(classification = 2 AND</BR>metric_identifier LIKE Volume_Mount_Point AND</BR>Volume_Mount_Point ISNOTEMPTY ))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>name</B> : </td><td>${Volume_Mount_Point}</td></tr><tr><td colspan=2><h1>SCOM MSSQL Database Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName STARTSWITH Microsoft.SQLServer.Database:))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.SQLServer\.(.*):([^;]*);([^;]*);([^;]*)</td></tr><tr><td><B>Mapped fields: </B></td><td>real_type</BR>scom_node</BR>instance_name</BR>db_name</BR></td></tr><tr><td colspan=2><h1>AWS Metrics Storage Volume</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = AWS CloudWatch Metrics AND</BR>((metric_identifier ISNOTEMPTY  AND</BR>namespace STARTSWITH AWS/EBS))</code></td></tr><tr><td colspan=2><h1>Nagios - IIS</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((type = IIS Web Server AND</BR>node MATCH_RGX ([^^\.]*)\..*))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>node</B></td></tr><tr><td><B>Regex: </B></td><td>([^\.]*)\..*</td></tr><tr><td><B>Mapped fields: </B></td><td>server_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>name</B> : </td><td>Microsoft IIS Server@${server_name}</td></tr><tr><td colspan=2><h1>snmpV1.linkDown</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv1 Generic Trap AND</BR>((generic_trap MATCH_RGX 2))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>agent_address</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>linkUpDown: ${node}, interface ${fIndex}</td></tr><tr><td><B>description</B> : </td><td>${node}: interface(${ifIndex}) is down.</td></tr><tr><td><B>type</B> : </td><td>interface linkUpDown</td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>resource</B> : </td><td>interface ${ifIndex}</td></tr><tr><td colspan=2><h1>k8s pod metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = sn_itmon AND</BR>((metric_name LIKE k8s.pods) AND</BR>(metric_name LIKE .containers. OR</BR>metric_name LIKE .volume.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)\.k8s\.pods\.(.*)\.(containers|volume)\.([^.]+)\.(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>ignored</BR>name</BR>k8s_object_type</BR>object_name</BR>metric_name_short</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td><B>metric_name</B> : </td><td>k8s.${metric_name_short}</td></tr><tr><td colspan=2><h1>snmpV3.linkUp</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv3 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)linkUp))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resolution_state</B> : </td><td>Closing</td></tr><tr><td><B>message_key</B> : </td><td>linkUpDown: ${node}, interface ${ifIndex}</td></tr><tr><td><B>severity</B> : </td><td>0</td></tr><tr><td><B>resource</B> : </td><td>interface ${ifIndex}</td></tr><tr><td><B>type</B> : </td><td>interface linkUpDown</td></tr><tr><td><B>description</B> : </td><td>${node}: interface(${ifIndex}) is no longer in down state.</td></tr><tr><td colspan=2><h1>snmpV1.linkUp</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv1 Generic Trap AND</BR>((generic_trap MATCH_RGX 3))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>agent_address</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resolution_state</B> : </td><td>Closing</td></tr><tr><td><B>message_key</B> : </td><td>linkUpDown: ${node}, interface ${ifIndex}</td></tr><tr><td><B>resource</B> : </td><td>interface ${ifIndex}</td></tr><tr><td><B>description</B> : </td><td>${node}: interface(${ifIndex}) is no longer in down state.</td></tr><tr><td><B>type</B> : </td><td>interface linkUpDown</td></tr><tr><td><B>severity</B> : </td><td>0</td></tr><tr><td colspan=2><h1>AWS host binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = AWS CloudWatch AND</BR>((InstanceId ISNOTEMPTY ))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>event_class</B></td></tr><tr><td><B>Regex: </B></td><td>(.*):sns:(.*):(.*):(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>prefix</BR>region_id</BR>punctuation1</BR>punctuation</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td><B>correlation_id</B> : </td><td>${InstanceId}</td></tr><tr><td colspan=2><h1>Opsview Apache CI Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Opsview AND</BR>((resource STARTSWITH Apache OR</BR>resource LIKE Apache))</code></td></tr><tr><td colspan=2><h1>Zabbix vfs.fs</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH vfs.fs))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_fileSystem</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>File System:${r_fileSystem}</td></tr><tr><td colspan=2><h1>Default Metric Name Rule</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source =  AND</BR>((metric_name ISEMPTY ))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${type}</td></tr><tr><td colspan=2><h1>Op5 Memory</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Op5 AND</BR>((metric_name STARTSWITH Memory OR</BR>metric_name LIKE Memory))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>Memory</td></tr><tr><td colspan=2><h1>Zabbix vmware.cluster</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH vmware.cluster))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[.*?[,\]](.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>VM Cluster: ${r_name}</td></tr><tr><td colspan=2><h1>SCOM Network Adapter - Metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.(.*)\.NetworkAdapter:(.*) AND</BR>classification = 2))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.(.*)\.NetworkAdapter:([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>os_type</BR>na_node</BR>na_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>NIC ${na_name} ${InstanceName}: ${metric_name}</td></tr><tr><td colspan=2><h1>Packet loss risen</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Node (.+)'s packet loss has risen above (.+)\.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Node (.+)'s packet loss has risen above (.+)\.</td></tr><tr><td><B>Mapped fields: </B></td><td>hostNameInEvent</BR>range</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_packet_loss</td></tr><tr><td colspan=2><h1>Solarwinds Metrics Hardware Rule</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((classification = 2))</code></td></tr><tr><td colspan=2><h1>Op5 MySQL</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Op5 AND</BR>((metric_name STARTSWITH MySQL OR</BR>metric_name LIKE MySQL))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>MySQL</td></tr><tr><td colspan=2><h1>Response_time</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX (.+) is responding again\. Response time is (.+) milliseconds\.))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>(.+) is responding again\. Response time is (.+) milliseconds\.</td></tr><tr><td><B>Mapped fields: </B></td><td>hhostNameInEvent</BR>responseTime</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_response_time</td></tr><tr><td colspan=2><h1>Azure Metrics Virtual Machines</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Microsoft Azure Metrics AND</BR>((resource_type STARTSWITH Microsoft.Compute/virtualMachines AND</BR>id ISNOTEMPTY ))</code></td></tr><tr><td colspan=2><h1>Azure MSSQL binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Microsoft Azure AND</BR>((type = microsoft.sql/servers/databases AND</BR>object_id ISNOTEMPTY ))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>resourceId</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)/databases/(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>databaseServerName</BR>databaseName</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${databaseName};${metric_name}</td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>ComponentOnAppStatus</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX NetPerMon Event Log:  Component (.+) on Application (.+) on Node (.+) is (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>NetPerMon Event Log:  Component (.+) on Application (.+) on Node (.+) is (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>component</BR>app</BR>nodeName</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_${component}_${app}_component_status</td></tr><tr><td colspan=2><h1>Zabbix Metrics Processes</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((classification = 2 AND</BR>applications_name = Processes))</code></td></tr><tr><td colspan=2><h1>cisco.cmiMrStateChange</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Trap From Enterprise 9 AND</BR>((snmpTrapOID MATCH_RGX cmiMrStateChange))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>description</B> : </td><td>${node}: The Mobile Router state has changed.</td></tr><tr><td><B>message_key</B> : </td><td>cmiMrStateChange: ${node}</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td><B>type</B> : </td><td>cmiMrStateChange</td></tr><tr><td colspan=2><h1>Solarwinds Group events</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((eventType MATCH_RGX 50|51|52|53|56|57|58|59|60|61|62|63|64|65|66))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${netObjectId}_${networkNodeId}_appUpDownEvent</td></tr><tr><td colspan=2><h1>Zabbix vmware.(.*).perfcounter</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ MATCH_RGX vmware\.(.*)\.perfcounter.*?))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>vmware\.(.*)\..*?\[.*?[,\]](.*?)[,\]](.*?)[,\]](.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_hvORvm</BR>r_uuid</BR>r_path</BR>r_instance</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_hvORvm}:${r_uuid}:${r_path}:${r_instance}</td></tr><tr><td colspan=2><h1>snmpV1.egpNeighborLoss</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv1 Generic Trap AND</BR>((generic_trap MATCH_RGX 5))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>agent_address</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>type</B> : </td><td>egpNeighborLoss</td></tr><tr><td><B>description</B> : </td><td>${node}: an EGP neighbor has been marked down and the peer relationship no longer obtrains. EGP neighbor IP: ${egpNeighAddr}.</td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>message_key</B> : </td><td>egpNeighborLoss: ${node}</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td colspan=2><h1>SCOM IIS Web Server - Metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.Windows\.InternetInformationServices\.(.*)\.WebServer:(.*) AND</BR>classification = 2))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.Windows\.InternetInformationServices\.(.*)\.WebServer:([^\.]*)\.(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>scom_version</BR>iis_webserver_name</BR>the_rest</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${InstanceName}${metric_name} ${ObjectName}</td></tr><tr><td colspan=2><h1>Zabbix vfs.file</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH vfs.file))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)\].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_file</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>File:${r_file}</td></tr><tr><td colspan=2><h1>Dynatrace VM Event Rule [Azure]</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Dynatrace AND</BR>((impactedEntityType = HOST AND</BR>provider = Azure))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>node</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>SCOM - SQLServer Bind DBFile, LogFile, FileGroup to Database</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.SQLServer\.(.*)\.DBFile:(.*) OR</BR>MonitoringObjectFullName MATCH_RGX Microsoft\.SQLServer\.(.*)\.DBLogFile:(.*) OR</BR>MonitoringObjectFullName MATCH_RGX Microsoft\.SQLServer\.(.*)\.DBFileGroup:(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.SQLServer\.([^\.]*)\.(.*):([^;]*);([^;]*);([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>type_version</BR>real_type</BR>scom_node</BR>instance_name</BR>db_name</BR>the_rest</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${real_type} ${the_rest}: ${metric_name}</td></tr><tr><td colspan=2><h1>Zabbix vm.memory.size | vm.vfs</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH vm.memory.size OR</BR>u_item_key_ STARTSWITH vm.vfs))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[.*?[,\]](.*?)[,\]](.*?)[,\]].*?[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_uuid</BR>r_instance</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>VM:${r_uuid}:${r_instance}</td></tr><tr><td colspan=2><h1>Zabbix vmware net.if | vfs</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH vmware.vm.net.if OR</BR>u_item_key_ STARTSWITH vmware.vm.vfs))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[.*?[,\]](.*?)[,\]](.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_uuid</BR>r_instance</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>VM:${r_uuid}:${r_instance}</td></tr><tr><td colspan=2><h1>Interface Utilization Reset</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Interface (.*) on (.*) received at (.*) of its utilization, which reset the alert trigger.*))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Interface (.*) on (.*) received at (.*) of its utilization, which reset the alert trigger.*</td></tr><tr><td><B>Mapped fields: </B></td><td>InterfaceNameInEvent</BR>HostNameInEvent</BR>Utilization</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_interface_utilization</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td colspan=2><h1>Zabbix net.if</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH net.if))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)[\],].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_interfaceName</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${interfaceName}</td></tr><tr><td colspan=2><h1>IOS change</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX The IOS Version changed for Node.*))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_IOS_change</td></tr><tr><td><B>severity</B> : </td><td>3</td></tr><tr><td colspan=2><h1>Zabbix net.dns</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH net.dns))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?),(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_ip</BR>r_zone</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>DNS:${r_ip}:${r_zone}</td></tr><tr><td colspan=2><h1>Zabbix Metrics OS</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((classification = 2 AND</BR>applications_name = OS))</code></td></tr><tr><td colspan=2><h1>OEM 12c Trap</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Trap From Enterprise 111 AND</BR>((int_ev_type = SNMP AND</BR>generic_trap = 6 AND</BR>enterprise = oraEM4Traps AND</BR>specific_trap = 3))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventTypeAttr6.1</B></td></tr><tr><td><B>Regex: </B></td><td>Metric\=(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEventTypeAttr_6</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventMessageURL.1</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEventMessage_URL</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventSeverity.1</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEvent_Severity</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventMessage.1</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEvent_Message</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventTypeAttr5.1</B></td></tr><tr><td><B>Regex: </B></td><td>Metric Group\=(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEventTypeAttr_5</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventTargetNameURL.1</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEventTargetName_URL</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventTypeAttr9.1</B></td></tr><tr><td><B>Regex: </B></td><td>Key Value\=(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEventTypeAttr_9</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventType.1</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEvent_Type</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventHostName.1</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEventHost_Name</BR></td></tr><tr><td><B>Parsed field: </B></td><td>iso.org.dod.internet.private.enterprises.oracle.oraEM4.oraEMNGObjects.oraEMNGEventTable.oraEMNGEventEntry.oraEMNGEventSequenceId.1</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>oraEMNGEventSequence_Id</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${oraEMNGEventTypeAttr_6}</td></tr><tr><td><B>node</B> : </td><td>${oraEMNGEventHost_Name}</td></tr><tr><td><B>type</B> : </td><td>${oraEMNGEvent_Type} - ${oraEMNGEventTypeAttr_5}</td></tr><tr><td><B>source</B> : </td><td>Oracle EM</td></tr><tr><td><B>resource</B> : </td><td>${oraEMNGEventTypeAttr_9}</td></tr><tr><td><B>message_key</B> : </td><td>${oraEMNGEventSequence_Id}</td></tr><tr><td><B>description</B> : </td><td>${oraEMNGEvent_Message}</td></tr><tr><td colspan=2><h1>Azure host binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Microsoft Azure AND</BR>((type = microsoft.compute/virtualmachines AND</BR>object_id ISNOTEMPTY ))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>correlation_id</B> : </td><td>${object_id}</td></tr><tr><td colspan=2><h1>snmpV3.linkDown</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv3 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)linkDown))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>description</B> : </td><td>${node}: interface(${ifIndex}) is down.</td></tr><tr><td><B>type</B> : </td><td>interface linkUpDown</td></tr><tr><td><B>resource</B> : </td><td>interface ${ifIndex}</td></tr><tr><td><B>message_key</B> : </td><td>linkUpDown: ${node}, interface ${ifIndex}</td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td colspan=2><h1>Dynatrace service event rule</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = DYNATRACE AND</BR>((correlation_id STARTSWITH SERVICE))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>event_class</B> : </td><td>${environmentName}</td></tr><tr><td colspan=2><h1>Nagios PostgreSQL</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Nagios AND</BR>((command_name LIKE postgres))</code></td></tr><tr><td colspan=2><h1>Azure database binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Microsoft Azure AND</BR>((type LIKE microsoft.documentdb OR</BR>type LIKE microsoft.cache OR</BR>type LIKE SuccessBricks.ClearDB))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Op5 Disk</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Op5 AND</BR>((metric_name STARTSWITH Disk OR</BR>metric_name LIKE Disk))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>Disk</td></tr><tr><td colspan=2><h1>SCOM Network Adapter</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.(.*)\.NetworkAdapter:(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.(.*)\.NetworkAdapter:([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>os_type</BR>na_node</BR>na_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>NIC ${na_name} : ${metric_name}</td></tr><tr><td colspan=2><h1>Zabbix Metrics CPU</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((classification = 2 AND</BR>applications_name = CPU, Performance))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>${key}</td></tr><tr><td colspan=2><h1>Zabbix Metrics Filesystems</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((classification = 2 AND</BR>applications_name = Filesystems))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>key</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)\[(.*)\,(.*)\]</td></tr><tr><td><B>Mapped fields: </B></td><td>beforeFolder</BR>folder</BR>afterFolder</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>name</B> : </td><td>${folder}</td></tr><tr><td colspan=2><h1>Zabbix vmware</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH vmware AND</BR>u_item_key_ NOT LIKE vmware.hv.datastore AND</BR>u_item_key_ NOT LIKE vmware.hv.perfcounter AND</BR>u_item_key_ NOT LIKE vmware.vm.perfcounter AND</BR>u_item_key_ NOT LIKE vmware.vm.vfs AND</BR>u_item_key_ NOT LIKE vmware.cluster AND</BR>u_item_key_ NOT LIKE vmware.vm.net.if))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>vmware\.(.*)\..*?\[.*?[,\]](.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_hvORvm</BR>r_uuid</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_hvORvm}: ${r_uuid}</td></tr><tr><td colspan=2><h1>ESX host</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = vmwVC AND</BR>((vmwVpxdHostName MATCH_RGX (.+) AND</BR>vmwVpxdObjValue MATCH_RGX (.+) - (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdHostName</B></td></tr><tr><td><B>Regex: </B></td><td>(.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdObjValue</B></td></tr><tr><td><B>Regex: </B></td><td>(.+) - (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>AlertName</BR>AlertContent</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>description</B> : </td><td>${vmwVpxdObjValue} on ESX: ${node}</td></tr><tr><td><B>message_key</B> : </td><td>${AlertName}_${node}</td></tr><tr><td colspan=2><h1>vmware vm</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = vmwVC AND</BR>((vmwVpxdObjValue MATCH_RGX (.+) - (.+) AND</BR>vmwVpxdVMName MATCH_RGX (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdObjValue</B></td></tr><tr><td><B>Regex: </B></td><td>(.+) - (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>AlertName</BR>AlertContent</BR></td></tr><tr><td><B>Parsed field: </B></td><td>vmwVpxdVMName</B></td></tr><tr><td><B>Regex: </B></td><td>(.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>VM image name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>description</B> : </td><td>${vmwVpxdObjValue} on VM: ${VM image name}</td></tr><tr><td><B>message_key</B> : </td><td>${AlertName}_${VM image name}</td></tr><tr><td colspan=2><h1>Counter status</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX (.+) for (.+) on (.+) is in a (.+) state))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>(.+) for (.+) on (.+) is in a (.+) state</td></tr><tr><td><B>Mapped fields: </B></td><td>counter</BR>app</BR>nodeName</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_${counter}_${app}_counter_status</td></tr><tr><td colspan=2><h1>Solarwinds Cluster events</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((eventType MATCH_RGX 25|26))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${netObjectId}_${networkNodeId}_clusterEvent</td></tr><tr><td colspan=2><h1>SCOM Processor Binding - Metrics</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.(.*)\.Processor:(.*) AND</BR>classification = 2))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.(.*)\.Processor:([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>os_type</BR>processor_node</BR>processor_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>Processor ${processor_name} ${InstanceName}: ${metric_name}</td></tr><tr><td colspan=2><h1>AWS vm binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = AWS CloudWatch AND</BR>((InstanceId ISNOTEMPTY ))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>event_class</B></td></tr><tr><td><B>Regex: </B></td><td>(.*):sns:(.*):(.*):(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>prefix</BR>region_id</BR>punctuation1</BR>punctuation2</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>object_id</B> : </td><td>${InstanceId}</td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Solarwinds Node events</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((eventType MATCH_RGX [12589]|14|100))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${netObjectId}_${networkNodeId}_nodeEvent</td></tr><tr><td colspan=2><h1>Node reboot</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX Node (.+) has rebooted at (.+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>Node (.+) has rebooted at (.+)</td></tr><tr><td><B>Mapped fields: </B></td><td>nodeName</BR>rebootTime</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_reboot</td></tr><tr><td colspan=2><h1>Datadog Host Event Rule [AWS and Google Cloud]</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Datadog AND</BR>((provider = aws OR</BR>provider = gcp))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>vmObjectIDField</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>object_id</BR></td></tr><tr><td><B>Parsed field: </B></td><td>node</B></td></tr><tr><td><B>Regex: </B></td><td>i-0a192344a48a693a0</td></tr><tr><td><B>Mapped fields: </B></td><td></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Zabbix icmpping</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH icmpping))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_target</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_target}</td></tr><tr><td colspan=2><h1>Zabbix telnet | ssh</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH telnet.run[ OR</BR>u_item_key_ STARTSWITH ssh.run[))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[.*?[,\](.*?)[,\](.*?)[,\].*?[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_ip</BR>r_port</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_ip}:${r_port}</td></tr><tr><td colspan=2><h1>OracleGrid Non-Database Traps</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = oraEM4Traps</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>oraEM4AlertMessage</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>description</BR></td></tr><tr><td><B>Parsed field: </B></td><td>oraEM4AlertHostName</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${node}${oraEM4AlertKeyName}${oraEM4AlertMetricName}${oraEM4AlertRuleName}${oraEM4AlertTargetName}${oraEM4AlertTargetType}</td></tr><tr><td colspan=2><h1>Zabbix sensor</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH sensor))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?),(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_device</BR>r_sensor</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_device}${r_sensor}</td></tr><tr><td colspan=2><h1>New Relic AWS Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = New Relic AND</BR>((event_class = New Relic AND</BR>provider = AWS AND</BR>targetType = Host))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>labels</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)aws\.ec2InstanceId\=(.*?)\,(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>LabelsPart1</BR>object_id</BR>LabelsPart2</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Zabbix proc.cpu</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH proc.cpu.util OR</BR>u_item_key_ STARTSWITH proc.mem))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_processName</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_processName}</td></tr><tr><td colspan=2><h1>Zabbix jmx</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH jmx[))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>server_port</B> : </td><td>${u_item_interface_port}</td></tr><tr><td><B>resource</B> : </td><td>${u_item_applications_name}:${u_host_host}:${u_item_interface_port}</td></tr><tr><td colspan=2><h1>Group status 1</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX (.+)on (.+) is ([^^\s]+)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>description</B></td></tr><tr><td><B>Regex: </B></td><td>(.+)on (.+) is ([^\s]+)</td></tr><tr><td><B>Mapped fields: </B></td><td>groupName</BR>nodeName</BR>Status</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_${groupName}_group_status</td></tr><tr><td colspan=2><h1>Solarwinds Volume events</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((eventType MATCH_RGX 200|201|202|203|210|211|210))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${netObjectId}_${networkNodeId}_clusterEvent</td></tr><tr><td colspan=2><h1>ciscoV1.tcpConnectionClose</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Trap From Enterprise 9 AND</BR>((specific_trap MATCH_RGX 1 AND</BR>enterprise MATCH_RGX cisco))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>agent_address</B></td></tr><tr><td><B>Regex: </B></td><td>(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>node</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>tcpConnectionClose: ${node}</td></tr><tr><td><B>severity</B> : </td><td>5</td></tr><tr><td><B>type</B> : </td><td>tcpConnectionClose</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>description</B> : </td><td>${node}: TCP connection is closed.</td></tr><tr><td colspan=2><h1>IOS Image family</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((description MATCH_RGX The IOS Image Family has changed for node.*))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${networkNodeId}_${netObjectId}_IOS_Family</td></tr><tr><td colspan=2><h1>snmpV2.coldStart</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv2 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)coldStart))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>description</B> : </td><td>${node}: is reinitializing itself and its configuration may be altered.</td></tr><tr><td><B>type</B> : </td><td>coldStart</td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>message_key</B> : </td><td>coldStart: ${node}</td></tr><tr><td colspan=2><h1>Azure Metrics Storage Volume</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Microsoft Azure Metrics AND</BR>((id ISNOTEMPTY  AND</BR>resource_type LIKE Microsoft.Storage/storageAccounts))</code></td></tr><tr><td colspan=2><h1>AWS RDS binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = AWS CloudWatch AND</BR>((DBInstanceIdentifier ISNOTEMPTY ))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>event_class</B></td></tr><tr><td><B>Regex: </B></td><td>(.*):sns:(.*):(.*):(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>prefix</BR>region_id</BR>punctuation1</BR>punctuation2</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td><B>object_id</B> : </td><td>${DBInstanceIdentifier}</td></tr><tr><td colspan=2><h1>Zabbix net.(.*).service</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ MATCH_RGX net\.(.*)\.service.*?\[(.*)\]))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>net\.(.*)\.service.*?\[(.*)[,\]](.*?)[,\]](.*?)[\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_protocol</BR>r_service</BR>r_ip</BR>r_port</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_protocol}:${r_service}:${r_port}</td></tr><tr><td colspan=2><h1>snmpV3.authenticationFailure</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv3 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)authenticationFailure))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>type</B> : </td><td>authenticationFailure</td></tr><tr><td><B>resource</B> : </td><td>${node}</td></tr><tr><td><B>message_key</B> : </td><td>authenticationFailure: ${node}</td></tr><tr><td><B>description</B> : </td><td>${node}: has received a protocol message that has not been properly authenticated.</td></tr><tr><td colspan=2><h1>Op5 Hardware</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Op5 AND</BR>((metric_name STARTSWITH Hardware OR</BR>metric_name LIKE Hardware))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>Hardware</td></tr><tr><td colspan=2><h1>Azure vm binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Microsoft Azure AND</BR>((type = microsoft.compute/virtualmachines AND</BR>object_id ISNOTEMPTY ))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>Opsview Hyper-V CI Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Opsview AND</BR>((resource STARTSWITH Hyper-V OR</BR>resource LIKE Hyper-V))</code></td></tr><tr><td colspan=2><h1>Solarwinds Interface events</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SolarWinds AND</BR>((eventType MATCH_RGX 10|11|12|13|17|18|19|22|23|24))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>message_key</B> : </td><td>${netObjectId}_${networkNodeId}_interfaceEvent</td></tr><tr><td colspan=2><h1>snmpV2.linkDown</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SNMPv2 Generic Trap AND</BR>((snmpTrapOID MATCH_RGX (.*)linkDown))</code></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>severity</B> : </td><td>4</td></tr><tr><td><B>message_key</B> : </td><td>linkUpDown: ${node}, interface ${ifIndex}</td></tr><tr><td><B>description</B> : </td><td>${node}: interface(${ifIndex}) is down.</td></tr><tr><td><B>type</B> : </td><td>interface linkUpDown</td></tr><tr><td><B>resource</B> : </td><td>interface ${ifIndex}</td></tr><tr><td colspan=2><h1>ft_inactive_rule</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = IBM Netcool AND</BR>((alert_group STARTSWITH OMNIbus Self Monitoring @NCOMS AND</BR>manager = OMNIbus SelfMonitoring))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>alert_group</B></td></tr><tr><td><B>Regex: </B></td><td>OMNIbus Self (.*)(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>firstPart</BR>secondPart</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>myfield</B> : </td><td>${firstPart}</td></tr><tr><td><B>resource</B> : </td><td>${resource}:${secondPart}</td></tr><tr><td colspan=2><h1>Zabbix wmi.get</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = Zabbix AND</BR>((u_item_key_ STARTSWITH wmi.get))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>.*?\[(.*?)[,\]].*?</td></tr><tr><td><B>Mapped fields: </B></td><td>r_namespace</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>resource</B> : </td><td>${r_namespace}</td></tr><tr><td colspan=2><h1>Docker containers</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = sn_itmon AND</BR>((metric_name MATCH_RGX docker\.[0-9a-f]{64}\..*))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+                </tr><tr><td><B>Parsed field: </B></td><td>metric_name</B></td></tr><tr><td><B>Regex: </B></td><td>docker\.([0-9a-f]{12})[0-9a-f]{52}\.(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>container_id</BR>docker_metric</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>docker.${docker_metric}</td></tr><tr><td><B>node</B> : </td><td></td></tr><tr><td colspan=2><h1>SCOM Processor Binding</h1></td></tr><tr>
+    <td><h2>Filter:</h2></td>
+    <td><code>Source = SCOM AND</BR>((MonitoringObjectFullName MATCH_RGX Microsoft\.(.*)\.Processor:(.*)))</code></td></tr><tr>
+                <td colspan=2><h2>Transform info</h2></td>
+            </tr><tr><td><B>Parsed field: </B></td><td>MonitoringObjectFullName</B></td></tr><tr><td><B>Regex: </B></td><td>Microsoft\.(.*)\.Processor:([^;]*);(.*)</td></tr><tr><td><B>Mapped fields: </B></td><td>os_type</BR>processor_node</BR>processor_name</BR></td></tr><tr><td colspan=2><h2>Custom Compose Fields</h2></td></tr><tr><td><B>metric_name</B> : </td><td>Processor ${processor_name} : ${metric_name}</td></tr></table></body></html>
