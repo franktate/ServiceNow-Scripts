@@ -6,3 +6,5 @@ A collection of scripts related to ServiceNow.
 [DumpEventRules.html](./DumpEventRules.html) - the output of the DumpEventRules.ps1 script on a mostly stock Quebec instance.
 
 [RESTCreateEvent.sh](./RESTCreateEvent.sh) - sample curl command to create an event in your instance
+
+[PowerShellREST.ps1](./PowerShellREST.ps1) - sample PowerShell script to create an event
