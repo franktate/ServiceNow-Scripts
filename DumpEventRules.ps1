@@ -96,7 +96,7 @@ foreach ($rule in $allrules.result) {
     # "composition" is the composition of the field (e.g. "${resource}:${secondpart}")
     #
     #  Wow. So now I see why Event Rules with node = <blank> don't get processed correctly in update sets:
-    #  for a rule, if you set field = ${field}  (same field name on left and right), then there's no goddamned
+    #  for a rule, if you set field = ${field}  (same field name on left and right), then there's no stinkin
     #  entry in the em_compose_field table for that rule (!). Really. So I guess the logic I need to
     #  employ is:
     #
